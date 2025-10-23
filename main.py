@@ -29,7 +29,12 @@ async def make_handler(stock):
 async def main():
     stream = Stream(ALPACA_API_KEY, ALPACA_SECRET_KEY, data_feed='iex')
     for stock in STOCK_VARS.keys():
-        handler = await make_handler(stock)
+        async def handler(q, stock=stock):
+            price = getattr(q, 'price', None)
+            if price is not None:
+                print(f"{stock} price: {price}")
+                var_name = STOCK_VARS[stock]
+                scratch_session.cloud.set_var(var_name, price, SCRATCH_PROJECT_ID)
         stream.subscribe_quotes(handler, stock)
     await stream.run()
 
