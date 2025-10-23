@@ -1,17 +1,16 @@
+import os
 import asyncio
 from alpaca_trade_api.stream import Stream
 import scratchapi
 
-# Alpaca API keys
-ALPACA_API_KEY = 'PKKU32QA474CHRCDPKXE3ZYBDC'
-ALPACA_SECRET_KEY = 'AJzqgFtAm7MFm5jeGFqV4o61Sk4RwFbpgH8YEBZfayb'
+# Read credentials and project ID from env variables (set in GitHub Secrets)
+SCRATCH_USERNAME = os.getenv('SCRATCH_USERNAME')
+SCRATCH_PASSWORD = os.getenv('SCRATCH_PASSWORD')
+ALPACA_API_KEY = os.getenv('ALPACA_API_KEY')
+ALPACA_SECRET_KEY = os.getenv('ALPACA_SECRET_KEY')
+SCRATCH_PROJECT_ID = int(os.getenv('SCRATCH_PROJECT_ID'))
 
-# Scratch Credentials
-SCRATCH_USERNAME = 'EncryptedCat'
-SCRATCH_PASSWORD = 'Encrypted123'
-SCRATCH_PROJECT_ID = 1232213894
-
-SCRATCH_CLOUD_VAR_NAME = 'StockPrice'
+# Stock to cloud variable mapping
 STOCK_VARS = {
     'AAPL': 'ApplePrice',
     'NVDA': 'NvidiaPrice',
@@ -22,22 +21,18 @@ STOCK_VARS = {
 scratch_session = scratchapi.ScratchUserSession(SCRATCH_USERNAME, SCRATCH_PASSWORD)
 
 async def handle_quote(q, stock):
-    price = q.price if hasattr(q, 'price') else None
+    price = getattr(q, 'price', None)
     if price is not None:
         print(f"{stock} price: {price}")
         var_name = STOCK_VARS[stock]
-        # Set cloud variable for this stock
+        # Update cloud variable
         scratch_session.cloud.set_var(var_name, price, SCRATCH_PROJECT_ID)
 
 async def main():
-    stream = Stream(ALPACA_API_KEY, ALPACA_SECRET_KEY, data_feed='iex')  # or 'sip' for paid plans
-    # Subscribe to quotes for all three stocks
+    stream = Stream(ALPACA_API_KEY, ALPACA_SECRET_KEY, data_feed='iex')  # use 'iex' or 'sip' if paid
     for stock in STOCK_VARS.keys():
         stream.subscribe_quotes(lambda q, stock=stock: asyncio.create_task(handle_quote(q, stock)), stock)
     await stream.run()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())
-
-# Run
-asyncio.run(main())
