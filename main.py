@@ -27,14 +27,16 @@ async def main():
                 var_name = STOCK_VARS[stock]
                 scratch_session.cloud.set_var(var_name, price, SCRATCH_PROJECT_ID)
         stream.subscribe_quotes(handler, stock)
-    await stream.run()
+    # Don't await stream.run(), call the internal coroutine instead
+    await stream._run_forever()
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
-    except RuntimeError as e:
-        if "asyncio.run() cannot be called from a running event loop" in str(e):
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(main())
-        else:
-            raise
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        # If no event loop, create new one
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    # Run the main coroutine until complete
+    loop.run_until_complete(main())
