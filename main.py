@@ -3,11 +3,13 @@ import asyncio
 from alpaca_trade_api.stream import Stream
 import scratchapi
 
-SCRATCH_USERNAME = os.getenv('SCRATCH_USERNAME')
-SCRATCH_PASSWORD = os.getenv('SCRATCH_PASSWORD')
-ALPACA_API_KEY = os.getenv('ALPACA_API_KEY')
-ALPACA_SECRET_KEY = os.getenv('ALPACA_SECRET_KEY')
-SCRATCH_PROJECT_ID = int(os.getenv('SCRATCH_PROJECT_ID'))
+ALPACA_API_KEY = 'PKKU32QA474CHRCDPKXE3ZYBDC'
+ALPACA_SECRET_KEY = 'AJzqgFtAm7MFm5jeGFqV4o61Sk4RwFbpgH8YEBZfayb'
+
+# Scratch Credentials
+SCRATCH_USERNAME = 'EncryptedCat'
+SCRATCH_PASSWORD = 'Encrypted123'
+SCRATCH_PROJECT_ID = 1232213894
 
 STOCK_VARS = {
     'AAPL': 'ApplePrice',
